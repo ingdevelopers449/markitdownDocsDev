@@ -8,9 +8,10 @@ from src.core.config import SUPPORTED_EXTENSIONS
 from src.core.exceptions import ConversionError, UnsupportedFormatError
 from src.core.utils import estimate_tokens
 from src.features.converter.models import ConversionRequest, ConversionResult
+from src.features.converter.sniffer import sniff_and_read_tabular, dataframe_to_markdown
 
 class ConversionService:
-    """Service responsible for converting document files to clean Markdown."""
+    """Service responsible for converting document files to clean Markdown with auto-detection."""
 
     def __init__(self):
         # Initialize official MarkItDown engine
@@ -18,30 +19,41 @@ class ConversionService:
 
     def is_supported(self, file_path: Path) -> bool:
         """Check if file extension is supported."""
-        return file_path.suffix.lower() in SUPPORTED_EXTENSIONS
+        ext = file_path.suffix.lower()
+        # Handle compound extensions like .xlsx.xls or any known extension
+        return ext in SUPPORTED_EXTENSIONS or file_path.name.lower().endswith(tuple(SUPPORTED_EXTENSIONS.keys()))
 
     def convert_file(self, request: ConversionRequest) -> ConversionResult:
         """
         Convert a single document file to Markdown.
-        Cleans repetitive whitespaces and optimizes token footprint.
+        Automatically detects file structure and applies fallback parsers.
         """
         source = Path(request.source_path)
         if not source.exists():
             raise ConversionError(f"Archivo no encontrado: {source}")
 
-        if not self.is_supported(source):
-            raise UnsupportedFormatError(
-                f"Formato no soportado: '{source.suffix}'. "
-                f"Formatos soportados: {', '.join(SUPPORTED_EXTENSIONS.keys())}"
-            )
-
         start_time = time.time()
         orig_size = source.stat().st_size
+        raw_text = ""
 
         try:
-            # Perform conversion using MarkItDown
-            result = self._engine.convert(str(source))
-            raw_text = result.text_content or ""
+            # 1. Primary Strategy: Microsoft MarkItDown engine
+            try:
+                result = self._engine.convert(str(source))
+                raw_text = result.text_content or ""
+            except Exception as markitdown_exc:
+                # 2. Resilient Fallback Strategy: Auto-detect and parse (Excel/HTML/CSV)
+                df = sniff_and_read_tabular(source)
+                if df is not None and not df.empty:
+                    raw_text = dataframe_to_markdown(df)
+                else:
+                    raise markitdown_exc
+
+            # If MarkItDown returned raw HTML table tags (e.g. from an HTML-based .xls), clean them into markdown
+            if "<table" in raw_text.lower():
+                df = sniff_and_read_tabular(source)
+                if df is not None and not df.empty:
+                    raw_text = dataframe_to_markdown(df)
 
             # Clean and optimize text to reduce token waste
             markdown_content = self._optimize_markdown(
@@ -51,10 +63,14 @@ class ConversionService:
                 add_header=request.add_metadata_header
             )
 
-            # Determine output path
+            # Determine output path (.md)
             output_file = request.output_path
             if output_file is None:
-                output_file = source.with_suffix(".md")
+                # Remove last extension or compound extension
+                stem = source.stem
+                if stem.lower().endswith(".xlsx") or stem.lower().endswith(".xls"):
+                    stem = Path(stem).stem
+                output_file = source.with_name(f"{stem}.md")
 
             # Write converted file
             output_file.parent.mkdir(parents=True, exist_ok=True)
