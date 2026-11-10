@@ -1,0 +1,15 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs y bases de datos locales
+*.log
+.doc2markdown_history.json
+
+# Salidas de pruebas
+.pytest_cache/
+
