@@ -14,8 +14,15 @@ class ConversionService:
     """Service responsible for converting document files to clean Markdown with auto-detection."""
 
     def __init__(self):
-        # Initialize official MarkItDown engine
-        self._engine = MarkItDown()
+        # Lazy initialization: do not load heavy Magika/ONNX models during app startup
+        self._engine = None
+
+    @property
+    def engine(self):
+        """Loads MarkItDown engine on first conversion request."""
+        if self._engine is None:
+            self._engine = MarkItDown()
+        return self._engine
 
     def is_supported(self, file_path: Path) -> bool:
         """Check if file extension is supported."""
@@ -39,7 +46,7 @@ class ConversionService:
         try:
             # 1. Primary Strategy: Microsoft MarkItDown engine
             try:
-                result = self._engine.convert(str(source))
+                result = self.engine.convert(str(source))
                 raw_text = result.text_content or ""
             except Exception as markitdown_exc:
                 # 2. Resilient Fallback Strategy: Auto-detect and parse (Excel/HTML/CSV)

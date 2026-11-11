@@ -100,12 +100,15 @@ def create_splash_screen():
 
     splash.update()
 
-    def update_progress(percent: int, message: str):
-        """Update the progress bar value and status message."""
+    def update_progress(percent: int, message: str, delay_ms: int = 150):
+        """Update the progress bar value and status message with smooth perception delay."""
         try:
             progress["value"] = percent
             lbl_status.config(text=message)
             splash.update()
+            if delay_ms > 0:
+                splash.after(delay_ms)
+                splash.update()
         except Exception:
             pass
 

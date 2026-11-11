@@ -83,15 +83,16 @@ Accede a la ventana de información con la versión actual, términos de licenci
 
 No necesitas tener conocimientos técnicos ni tener Python instalado en tu equipo.
 
-### Paso 1: Descargar el Ejecutable
+### Paso 1: Descargar el Programa
 
 1. Ve a la sección de [Última Versión (Releases)](https://github.com/ingdevelopers449/markitdownDocsDev/releases).
-2. En la sección **Assets**, descarga el archivo **`Doc2Markdown.exe`**.
+2. En la sección **Assets**, descarga el archivo comprimido **`Doc2Markdown-Windows.zip`** (o `Doc2Markdown.exe`).
 
 ### Paso 2: Abrir el Software
 
-1. Haz doble clic sobre **`Doc2Markdown.exe`**.
-2. La aplicación se abrirá de inmediato en tu pantalla con su diseño moderno en modo oscuro.
+1. Haz clic derecho en el archivo `.zip` descargado y selecciona **"Extraer todo..."**.
+2. Entra a la carpeta extraída y haz doble clic sobre **`Doc2Markdown.exe`**.
+3. La aplicación se abrirá de inmediato con su pantalla de carga fluida y tema moderno en modo oscuro (¡sin instalar nada más!).
 
 ### Paso 3: Convertir y Copiar a tu IA
 
