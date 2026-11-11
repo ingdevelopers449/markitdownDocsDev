@@ -1,133 +1,124 @@
 # ⚡ Doc2Markdown Studio
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://microsoft.com)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/ingdevelopers449/markitdownDocsDev?color=2ecc71&label=Versi%C3%B3n)](https://github.com/ingdevelopers449/markitdownDocsDev/releases)
+[![License: MIT](https://img.shields.io/badge/Licencia-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Plataforma-Windows-blue.svg)](https://microsoft.com)
+[![Author](https://img.shields.io/badge/Autor-ingdeveloper449-orange.svg)](https://github.com/ingdevelopers449)
 
-> **Convierte documentos pesados (Excel, Word, PDF, PowerPoint) a Markdown (.md) limpio con un solo clic.**  
-> Diseñado para que **cualquier persona** (analistas, estudiantes, investigadores, docentes y programadores) ahorre miles de tokens y dinero al interactuar con Inteligencias Artificiales como ChatGPT, Claude, DeepSeek o Gemini.
-
----
-
-## 💡 ¿Por qué esta herramienta es imprescindible para ti?
-
-Cuando subes un archivo tradicional de **Excel (`.xlsx`, `.xls`)**, **Word (`.docx`)** o **PDF** a una IA:
-
-- **Desperdicio masivo de tokens**: El 85% al 90% de la información de esos archivos corresponde a colores de celdas, fuentes, estilos visuales, márgenes y código XML binario interno que la IA no necesita para entender tus datos.
-- **Límites de contexto agotados**: Si tu archivo es grande, la IA se satura rápidamente o empieza a olvidar partes de tu conversación.
-- **Costos innecesarios**: Si usas APIs de IA de pago, estás pagando por estilos visuales en lugar de contenido real.
-
-### ✨ La Solución: Doc2Markdown Studio
-
-Esta herramienta extrae únicamente la información valiosa y la transforma en **Markdown puro (`.md`)**:
-tablas limpias, encabezados y listas legibles.
-
-| Métrica | Archivo Original (Excel / Word) | Convertido a Markdown (.md) | Ahorro |
-| :--- | :--- | :--- | :--- |
-| **Tamaño de archivo** | ~30 KB - 500 KB | ~1 KB - 15 KB | **> 85% de reducción** |
-| **Tokens consumidos en IA** | Miles de tokens gastados | Solo los datos necesarios | **Ahorro de hasta un 90%** |
-| **Comprensión de la IA** | Distraída con formato | **100% enfocada en el contenido** | **Respuestas más precisas** |
+> **Convierte documentos complejos (Excel, Word, PDF, PowerPoint) a Markdown (.md) limpio con un solo clic.**  
+> Diseñado para que **cualquier persona** (analistas de requerimientos, estudiantes, investigadores, docentes y programadores) ahorre miles de tokens y dinero al interactuar con Inteligencias Artificiales como ChatGPT, Claude, Gemini o DeepSeek.
 
 ---
 
-## 👥 ¿A quién le sirve esta aplicación?
+## 🛑 La Problemática
 
-- 📊 **Analistas de Negocio y Producto**: Convierte reportes y matrices de requerimientos para pedirle a la IA análisis estadísticos o resúmenes sin sobrecargar el chat.
-- 📋 **Scrum Masters y Product Owners**: Sube historias de usuario o épicas en segundos sin basura visual.
-- 🎓 **Estudiantes e Investigadores**: Extrae tablas de artículos PDF o diapositivas para que la IA elabore mapas conceptuales o fichas de estudio.
-- 💻 **Desarrolladores**: Limpia documentación técnica y acelera la integración de prompts en sus sistemas.
-- 🏢 **Equipos de Oficina y Administración**: Pasa planillas de asistencia, inventarios o cotizaciones a texto amigable para cualquier modelo LLM.
+Hoy en día, las herramientas de Inteligencia Artificial (LLMs) son el asistente diario de millones de profesionales y estudiantes. Sin embargo, surge un gran problema al compartirles información:
 
----
-
-## 🚀 ¿Cómo instalar y usar el programa (`.exe`)?
-
-No necesitas saber de programación ni tener Python instalado en tu computadora.
-
-### Paso 1: Ejecutar la aplicación
-
-1. Dirígete a la carpeta `dist/` de este proyecto (o descárgate el archivo ejecutable compartido por el autor).
-2. Haz doble clic sobre **`Doc2Markdown.exe`**.
-3. Se abrirá inmediatamente la ventana moderna con soporte para modo oscuro.
-
-### Paso 2: Convertir documentos en segundos
-
-1. **Seleccionar archivos**:
-   - Pulsa el botón **`📄 Seleccionar Archivo(s)`** para elegir cualquier documento desde tus carpetas (Descargas, Escritorio, etc.).
-   - O simplemente **arrastra tu archivo desde el Explorador de Windows y suéltalo** en la ventana del programa.
-   - También puedes convertir una carpeta completa usando **`📁 Seleccionar Carpeta`**.
-2. **Convertir**:
-   - Pulsa el botón verde **`🚀 CONVERTIR A .MD`**.
-3. **Usar el resultado**:
-   - En la pestaña **Vista Previa**, verás tu archivo convertido a texto limpio.
-   - Haz clic en **`📋 Copiar al Portapapeles`** y pégalo directamente en ChatGPT, Claude o Gemini.
-   - O pulsa **`📂 Abrir Carpeta del Archivo`** para ubicar el archivo `.md` generado en tu equipo.
+1. **Desperdicio masivo de tokens**: Cuando subes un archivo en formato **Excel (`.xlsx`, `.xls`)**, **Word (`.docx`)** o **PDF**, más del **85% del archivo no es texto útil**, sino código XML binario, hojas de estilos, colores de celdas, fuentes tipográficas y propiedades de márgenes que la IA se ve obligada a leer.
+2. **Límite de memoria (Context Window) saturado**: Al consumir tantos tokens en ruido visual, la IA rápidamente alcanza su límite de contexto, se satura o empieza a "alucinar" y olvidar instrucciones previas.
+3. **Costo elevado en APIs y servicios**: En modelos de pago por consumo de tokens, estás pagando dinero real por procesar colores y celdas vacías en lugar de información valiosa.
+4. **Complejidad técnica**: Para los usuarios no técnicos, convertir archivos a formatos limpios suele requerir instalar repositorios complejos, terminales de comandos o herramientas de pago en la nube.
 
 ---
 
-## 🛠️ Para Desarrolladores (Ejecutar desde el Código Fuente)
+## 💡 Nuestra Solución: Doc2Markdown Studio
 
-Si deseas inspeccionar el código o contribuir al desarrollo:
+**Doc2Markdown Studio** es una aplicación de escritorio moderna, visual e intuitiva que extrae únicamente el contenido semántico y los datos reales del documento, transformándolos instantáneamente en **Markdown (`.md`) nativo**: tablas limpias, encabezados estructurados y listas sin ruido.
 
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/ingdevelopers449/markitdownDocsDev.git
-cd markitdownDocsDev
-
-# 2. Instalar dependencias
-pip install -r requirements.txt
-
-# 3. Iniciar la interfaz gráfica
-python main.py
-
-# O ejecutar mediante la terminal (CLI)
-python main.py ruta/a/tu_archivo.xlsx
-```
-
-### Ejecución de Pruebas Automatizadas
-
-```bash
-python -m unittest discover tests
-```
+- 📉 **Ahorro de hasta el 90% en tokens** para la IA.
+- 🎯 **Respuestas mucho más precisas**, ya que la IA se concentra al 100% en los datos y no en el diseño.
+- 🖱️ **Zero-Code / Cero Comandos**: Arrastra tu documento desde cualquier carpeta de Windows y pulsa un botón.
 
 ---
 
-## 🏗️ Arquitectura del Software (Feature-First)
+## 🖥️ Recorrido Visual de la Aplicación
 
-El proyecto sigue una estructura limpia modular por funcionalidades (**Feature-First**):
+### 1. Pantalla Principal y Carga Intuitiva
 
-```text
-markitdown-studio/
-├── main.py                          # Punto de entrada de la aplicación
-├── requirements.txt                 # Dependencias del proyecto
-├── README.md                        # Documentación para usuarios y desarrolladores
-├── LICENSE                          # Licencia con atribución obligatoria
-├── tests/                           # Suite de pruebas automatizadas
-│   └── test_converter.py
-└── src/
-    ├── core/                        # Configuración global y estimador de tokens
-    └── features/                    # Módulos aislados por funcionalidad
-        ├── converter/               # Motor de conversión y Auto-Sniffer inteligente
-        ├── batch/                   # Procesamiento multihilo por lotes y carpetas
-        ├── history/                 # Historial y auditoría de métricas de ahorro
-        ├── gui/                     # Interfaz Gráfica interactiva (CustomTkinter + Drag&Drop)
-        └── cli/                     # Modo consola para terminal
-```
+Puedes seleccionar archivos individuales, carpetas completas o simplemente **arrastrar y soltar** tus documentos directamente desde el explorador de Windows:
+
+![Pantalla Principal](docs/screenshots/01_pantalla_principal.png)
 
 ---
 
-## 📄 Formatos Compatibles
+### 2. Conversión Rápida y Vista Previa en Vivo
 
-- **Hojas de cálculo**: `.xlsx`, `.xls` (antiguos y modernos), `.csv`
+El sistema procesa el documento en milisegundos y muestra de inmediato el Markdown estructurado en tablas legibles, listo para ser revisado:
+
+![Vista Previa Markdown](docs/screenshots/02_vista_previa_markdown.png)
+
+> **Botones de acción inmediata:**
+>
+> - **`📋 Copiar al Portapapeles`**: Copia todo el contenido para pegarlo directamente en tu chat de IA sin abrir el archivo.
+> - **`📂 Abrir Carpeta del Archivo`**: Abre el explorador de Windows señalando el archivo `.md` generado.
+
+---
+
+### 3. Historial de Conversiones y Métricas de Tokens
+
+Monitorea tus conversiones con estimación de tokens y tamaño ahorrado para tener un control claro del rendimiento:
+
+![Historial y Métricas](docs/screenshots/03_historial_metricas.png)
+
+---
+
+### 4. Información, Créditos y Repositorio Oficial
+
+Accede a la ventana de información con la versión actual, términos de licencia y enlace directo al repositorio:
+
+![Info y Créditos](docs/screenshots/04_info_creditos.png)
+
+---
+
+## 👥 ¿A quién le sirve esta herramienta?
+
+- 📊 **Analistas de Sistemas y Requerimientos**: Transforma matrices de historias de usuario, casos de uso y catálogos de requisitos en tablas `.md` livianas para la IA.
+- 🏢 **Equipos de Oficina y Gestión**: Convierte listados de asistencia, inventarios o cotizaciones de Excel a formato amigable para cualquier modelo LLM.
+- 🎓 **Docentes y Estudiantes**: Limpia reportes, libros o guías académicas para pedir resúmenes precisos a ChatGPT o Gemini.
+- 💻 **Desarrolladores**: Integra documentación sin lidiar con formatos propietarios ni consumo excesivo de tokens en prompts.
+
+---
+
+## 📥 Cómo Instalar y Usar la Aplicación (.exe)
+
+No necesitas tener conocimientos técnicos ni tener Python instalado en tu equipo.
+
+### Paso 1: Descargar el Ejecutable
+
+1. Ve a la sección de [Última Versión (Releases)](https://github.com/ingdevelopers449/markitdownDocsDev/releases).
+2. En la sección **Assets**, descarga el archivo **`Doc2Markdown.exe`**.
+
+### Paso 2: Abrir el Software
+
+1. Haz doble clic sobre **`Doc2Markdown.exe`**.
+2. La aplicación se abrirá de inmediato en tu pantalla con su diseño moderno en modo oscuro.
+
+### Paso 3: Convertir y Copiar a tu IA
+
+1. Haz clic en **`📄 Seleccionar Archivo(s)`** (o arrastra tu documento de Excel, Word o PDF sobre la ventana).
+2. Haz clic en el botón verde **`🚀 CONVERTIR A .MD`**.
+3. En la pestaña **Vista Previa Markdown**, haz clic en **`📋 Copiar al Portapapeles`**.
+4. ¡Pégalo en tu IA favorita (ChatGPT, Claude, Gemini, DeepSeek) y disfruta de respuestas rápidas sin desperdicio de tokens!
+
+---
+
+## 📄 Formatos Compatibles Soportados
+
+El motor detecta automáticamente la estructura real de tu archivo gracias a su sistema de auto-detección inteligente:
+
+- **Hojas de cálculo**: `.xlsx`, `.xls` (versiones modernas y antiguas), `.csv`
 - **Documentos de texto**: `.docx`, `.pdf`, `.txt`
 - **Presentaciones**: `.pptx`
-- **Estructurados y web**: `.html`, `.htm`, `.json`, `.xml`
+- **Archivos web y estructurados**: `.html`, `.htm`, `.json`, `.xml`
 
 ---
 
 ## ⚖️ Licencia y Créditos de Autoría
 
-Este proyecto está publicado bajo la licencia **MIT**.
+Este proyecto es de código abierto bajo la licencia **MIT**.
+
+- **Autor Principal**: [ingdeveloper449](https://github.com/ingdevelopers449)
+- **Repositorio Oficial**: [https://github.com/ingdevelopers449/markitdownDocsDev](https://github.com/ingdevelopers449/markitdownDocsDev)
 
 > [!IMPORTANT]
-> **Atribución Requerida**: Cualquier persona u organización que clone, bifurque (*fork*), redistribuya o reutilice el código fuente de este proyecto **debe conservar de manera visible los créditos correspondientes a su autor original (ingdeveloper449)** y el archivo [`LICENSE`](LICENSE) intacto.
+> **Atribución Requerida**: Cualquier persona u organización que clone, bifurque (*fork*), redistribuya o reutilice este software o su código fuente **debe conservar de manera visible los créditos correspondientes a su autor original (ingdeveloper449)** y el archivo [`LICENSE`](LICENSE) intacto.
