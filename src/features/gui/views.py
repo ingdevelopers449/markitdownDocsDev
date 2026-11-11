@@ -43,6 +43,14 @@ class MainWindow(BaseWindow):
         self.geometry("1000x700")
         self.minsize(880, 600)
 
+        # Set window icon if available
+        icon_path = Path("icon.ico")
+        if icon_path.exists():
+            try:
+                self.iconbitmap(str(icon_path.resolve()))
+            except Exception:
+                pass
+
         # Services
         self.converter_service = ConversionService()
         self.batch_service = BatchService(self.converter_service)
