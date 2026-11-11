@@ -1,138 +1,133 @@
 # ⚡ Doc2Markdown Studio
 
-> **Herramienta para desarrolladores y analistas**: Convierte documentos complejos (Excel `.xlsx`, Word `.docx`, PDF, PowerPoint `.pptx`, CSV) en Markdown (`.md`) limpio y optimizado, reduciendo significativamente el consumo de tokens y contexto al interactuar con modelos de IA (ChatGPT, Claude, Gemini, etc.).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://microsoft.com)
+
+> **Convierte documentos pesados (Excel, Word, PDF, PowerPoint) a Markdown (.md) limpio con un solo clic.**  
+> Diseñado para que **cualquier persona** (analistas, estudiantes, investigadores, docentes y programadores) ahorre miles de tokens y dinero al interactuar con Inteligencias Artificiales como ChatGPT, Claude, DeepSeek o Gemini.
 
 ---
 
-## 🎯 ¿Por qué este proyecto?
+## 💡 ¿Por qué esta herramienta es imprescindible para ti?
 
-Al subir archivos como hojas de cálculo de Excel (`.xlsx`) a una IA:
+Cuando subes un archivo tradicional de **Excel (`.xlsx`, `.xls`)**, **Word (`.docx`)** o **PDF** a una IA:
 
-- La IA gasta una enorme cantidad de tokens procesando estilos, colores de celdas, fuentes, metadatos binarios y XML innecesarios.
-- Las tablas en Excel generan ruido visual en el prompt.
+- **Desperdicio masivo de tokens**: El 85% al 90% de la información de esos archivos corresponde a colores de celdas, fuentes, estilos visuales, márgenes y código XML binario interno que la IA no necesita para entender tus datos.
+- **Límites de contexto agotados**: Si tu archivo es grande, la IA se satura rápidamente o empieza a olvidar partes de tu conversación.
+- **Costos innecesarios**: Si usas APIs de IA de pago, estás pagando por estilos visuales en lugar de contenido real.
 
-**Doc2Markdown Studio** extrae el contenido semántico y lo estructura en formato Markdown nativo (tablas limpias, encabezados, listas), reduciendo el peso en más del **85%** y ahorrando cientos o miles de tokens en cada consulta.
+### ✨ La Solución: Doc2Markdown Studio
+
+Esta herramienta extrae únicamente la información valiosa y la transforma en **Markdown puro (`.md`)**:
+tablas limpias, encabezados y listas legibles.
+
+| Métrica | Archivo Original (Excel / Word) | Convertido a Markdown (.md) | Ahorro |
+| :--- | :--- | :--- | :--- |
+| **Tamaño de archivo** | ~30 KB - 500 KB | ~1 KB - 15 KB | **> 85% de reducción** |
+| **Tokens consumidos en IA** | Miles de tokens gastados | Solo los datos necesarios | **Ahorro de hasta un 90%** |
+| **Comprensión de la IA** | Distraída con formato | **100% enfocada en el contenido** | **Respuestas más precisas** |
 
 ---
 
-## 🏗️ Arquitectura del Proyecto (Feature-First)
+## 👥 ¿A quién le sirve esta aplicación?
 
-El software sigue estrictamente una arquitectura modular orientada a funcionalidades (**Feature-First**), aislando cada capacidad del sistema para facilitar su mantenimiento y escalabilidad:
+- 📊 **Analistas de Negocio y Producto**: Convierte reportes y matrices de requerimientos para pedirle a la IA análisis estadísticos o resúmenes sin sobrecargar el chat.
+- 📋 **Scrum Masters y Product Owners**: Sube historias de usuario o épicas en segundos sin basura visual.
+- 🎓 **Estudiantes e Investigadores**: Extrae tablas de artículos PDF o diapositivas para que la IA elabore mapas conceptuales o fichas de estudio.
+- 💻 **Desarrolladores**: Limpia documentación técnica y acelera la integración de prompts en sus sistemas.
+- 🏢 **Equipos de Oficina y Administración**: Pasa planillas de asistencia, inventarios o cotizaciones a texto amigable para cualquier modelo LLM.
+
+---
+
+## 🚀 ¿Cómo instalar y usar el programa (`.exe`)?
+
+No necesitas saber de programación ni tener Python instalado en tu computadora.
+
+### Paso 1: Ejecutar la aplicación
+
+1. Dirígete a la carpeta `dist/` de este proyecto (o descárgate el archivo ejecutable compartido por el autor).
+2. Haz doble clic sobre **`Doc2Markdown.exe`**.
+3. Se abrirá inmediatamente la ventana moderna con soporte para modo oscuro.
+
+### Paso 2: Convertir documentos en segundos
+
+1. **Seleccionar archivos**:
+   - Pulsa el botón **`📄 Seleccionar Archivo(s)`** para elegir cualquier documento desde tus carpetas (Descargas, Escritorio, etc.).
+   - O simplemente **arrastra tu archivo desde el Explorador de Windows y suéltalo** en la ventana del programa.
+   - También puedes convertir una carpeta completa usando **`📁 Seleccionar Carpeta`**.
+2. **Convertir**:
+   - Pulsa el botón verde **`🚀 CONVERTIR A .MD`**.
+3. **Usar el resultado**:
+   - En la pestaña **Vista Previa**, verás tu archivo convertido a texto limpio.
+   - Haz clic en **`📋 Copiar al Portapapeles`** y pégalo directamente en ChatGPT, Claude o Gemini.
+   - O pulsa **`📂 Abrir Carpeta del Archivo`** para ubicar el archivo `.md` generado en tu equipo.
+
+---
+
+## 🛠️ Para Desarrolladores (Ejecutar desde el Código Fuente)
+
+Si deseas inspeccionar el código o contribuir al desarrollo:
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/ingdevelopers449/markitdownDocsDev.git
+cd markitdownDocsDev
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Iniciar la interfaz gráfica
+python main.py
+
+# O ejecutar mediante la terminal (CLI)
+python main.py ruta/a/tu_archivo.xlsx
+```
+
+### Ejecución de Pruebas Automatizadas
+
+```bash
+python -m unittest discover tests
+```
+
+---
+
+## 🏗️ Arquitectura del Software (Feature-First)
+
+El proyecto sigue una estructura limpia modular por funcionalidades (**Feature-First**):
 
 ```text
 markitdown-studio/
-├── main.py                          # Punto de entrada dual (GUI / CLI)
+├── main.py                          # Punto de entrada de la aplicación
 ├── requirements.txt                 # Dependencias del proyecto
-├── README.md                        # Documentación completa
-├── tests/                           # Suite de pruebas unitarias
+├── README.md                        # Documentación para usuarios y desarrolladores
+├── LICENSE                          # Licencia con atribución obligatoria
+├── tests/                           # Suite de pruebas automatizadas
 │   └── test_converter.py
 └── src/
-    ├── core/                        # Núcleo transversal compartido
-    │   ├── __init__.py
-    │   ├── config.py                # Configuración, rutas y extensiones soportadas
-    │   ├── exceptions.py            # Jerarquía de excepciones de dominio
-    │   └── utils.py                 # Estimación de tokens y formato de tamaños
-    │
-    └── features/                    # Módulos por Funcionalidad (Feature-First)
-        ├── converter/               # [Feature 1] Motor de conversión a Markdown
-        │   ├── __init__.py
-        │   ├── models.py            # Modelos de solicitud y resultado
-        │   └── service.py           # Servicio MarkItDown y saneamiento de texto
-        │
-        ├── batch/                   # [Feature 2] Procesamiento por lotes y carpetas
-        │   ├── __init__.py
-        │   └── service.py           # Ejecución concurrente multihilo
-        │
-        ├── history/                 # [Feature 3] Historial y auditoría de conversiones
-        │   ├── __init__.py
-        │   └── service.py           # Registro de métricas y persistencia local
-        │
-        ├── gui/                     # [Feature 4] Interfaz Gráfica de Usuario (CustomTkinter)
-        │   ├── __init__.py
-        │   └── views.py             # Ventana principal, previsualizador y métricas
-        │
-        └── cli/                     # [Feature 5] Línea de Comandos para desarrolladores
-            ├── __init__.py
-            └── runner.py            # Argumentos CLI y ejecución desde terminal
+    ├── core/                        # Configuración global y estimador de tokens
+    └── features/                    # Módulos aislados por funcionalidad
+        ├── converter/               # Motor de conversión y Auto-Sniffer inteligente
+        ├── batch/                   # Procesamiento multihilo por lotes y carpetas
+        ├── history/                 # Historial y auditoría de métricas de ahorro
+        ├── gui/                     # Interfaz Gráfica interactiva (CustomTkinter + Drag&Drop)
+        └── cli/                     # Modo consola para terminal
 ```
-
----
-
-## 🚀 Instalación y Requisitos
-
-1. Asegúrate de tener Python 3.10+ instalado.
-2. Instala las dependencias:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 💻 Modos de Uso
-
-### 1. Interfaz Gráfica de Escritorio (Modo Recomendado)
-
-Inicia la app moderna con soporte para modo oscuro:
-
-```bash
-python main.py
-```
-
-**Características de la GUI:**
-
-- 📄 **Selección múltiple**: Carga múltiples archivos a la vez.
-- 📁 **Conversión por carpeta**: Convierte todos los documentos de un directorio en lote.
-- 📊 **Métricas en tiempo real**: Estima los tokens que consumirá la IA y el porcentaje de ahorro.
-- 👁️ **Vista previa integrada**: Inspecciona el Markdown resultante directamente en la pantalla.
-- 📋 **Botón de copiado rápido**: Copia el Markdown listo para pegarlo a tu IA favorita con un solo clic.
-- 🕒 **Pestaña de Historial**: Revisa conversiones previas y su rendimiento.
-
-### 2. Modo Terminal / CLI (Para Desarrolladores)
-
-Convierte rápidamente archivos sin abrir la interfaz:
-
-- **Convertir un archivo específico:**
-
-  ```bash
-  python main.py mi_historia_usuario.xlsx
-  ```
-
-  *(Genera `mi_historia_usuario.md` en el mismo directorio).*
-
-- **Especificar ruta de salida:**
-
-  ```bash
-  python main.py historia.docx -o ./docs/historia.md
-  ```
-
-- **Convertir una carpeta completa por lotes:**
-
-  ```bash
-  python main.py ./historias_de_usuario/ -r
-  ```
-
-- **Ver formatos soportados:**
-
-  ```bash
-  python main.py --list-formats
-  ```
 
 ---
 
 ## 📄 Formatos Compatibles
 
-- **Hojas de Cálculo**: `.xlsx`, `.xls`, `.csv`
-- **Documentos de Texto**: `.docx`, `.txt`, `.pdf`
+- **Hojas de cálculo**: `.xlsx`, `.xls` (antiguos y modernos), `.csv`
+- **Documentos de texto**: `.docx`, `.pdf`, `.txt`
 - **Presentaciones**: `.pptx`
-- **Estructurados**: `.json`, `.xml`, `.html`, `.htm`
+- **Estructurados y web**: `.html`, `.htm`, `.json`, `.xml`
 
 ---
 
-## 🧪 Pruebas Unitarias
+## ⚖️ Licencia y Créditos de Autoría
 
-Ejecuta la suite de pruebas del proyecto:
+Este proyecto está publicado bajo la licencia **MIT**.
 
-```bash
-python -m unittest tests/test_converter.py
-```
+> [!IMPORTANT]
+> **Atribución Requerida**: Cualquier persona u organización que clone, bifurque (*fork*), redistribuya o reutilice el código fuente de este proyecto **debe conservar de manera visible los créditos correspondientes a su autor original (ingdeveloper449)** y el archivo [`LICENSE`](LICENSE) intacto.

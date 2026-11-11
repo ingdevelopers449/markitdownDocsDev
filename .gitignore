@@ -6,6 +6,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# PyInstaller builds y scripts locales
+build/
+dist/
+*.spec
+crear_exe.bat
+
 # Logs y bases de datos locales
 *.log
 .doc2markdown_history.json

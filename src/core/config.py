@@ -3,6 +3,9 @@ from pathlib import Path
 
 APP_NAME = "Doc2Markdown Studio"
 APP_VERSION = "1.0.0"
+APP_AUTHOR = "ingdeveloper449"
+APP_REPO_URL = "https://github.com/ingdevelopers449/markitdownDocsDev"
+APP_LICENSE = "MIT License"
 
 SUPPORTED_EXTENSIONS = {
     ".xlsx": "Excel Spreadsheet",

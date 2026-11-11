@@ -2,6 +2,7 @@
 import os
 import re
 import threading
+import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox
 import customtkinter as ctk
@@ -12,7 +13,7 @@ try:
 except Exception:
     HAS_DND = False
 
-from src.core.config import APP_NAME, APP_VERSION, SUPPORTED_EXTENSIONS
+from src.core.config import APP_NAME, APP_VERSION, APP_AUTHOR, APP_REPO_URL, APP_LICENSE, SUPPORTED_EXTENSIONS
 from src.core.utils import format_size
 from src.features.converter.service import ConversionService
 from src.features.converter.models import ConversionRequest
@@ -102,15 +103,24 @@ class MainWindow(BaseWindow):
             text="⚡ Doc2Markdown", 
             font=ctk.CTkFont(size=20, weight="bold")
         )
-        logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        logo_label.grid(row=0, column=0, padx=20, pady=(20, 5))
+
+        # Version Pill Badge
+        version_label = ctk.CTkLabel(
+            self.sidebar_frame,
+            text=f"v{APP_VERSION} • {APP_AUTHOR}",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color="#3498db"
+        )
+        version_label.grid(row=1, column=0, padx=20, pady=(0, 5))
 
         sub_label = ctk.CTkLabel(
             self.sidebar_frame,
             text="Optimizado para LLMs\n(Excel, Word, PDF -> MD)",
-            font=ctk.CTkFont(size=12),
+            font=ctk.CTkFont(size=11),
             text_color="gray70"
         )
-        sub_label.grid(row=1, column=0, padx=20, pady=(0, 20))
+        sub_label.grid(row=2, column=0, padx=20, pady=(0, 15))
 
         # Action Buttons in Sidebar
         self.btn_select_file = ctk.CTkButton(
@@ -118,14 +128,14 @@ class MainWindow(BaseWindow):
             text="📄 Seleccionar Archivo(s)", 
             command=self._on_select_files
         )
-        self.btn_select_file.grid(row=2, column=0, padx=20, pady=10)
+        self.btn_select_file.grid(row=3, column=0, padx=20, pady=8)
 
         self.btn_select_folder = ctk.CTkButton(
             self.sidebar_frame, 
             text="📁 Seleccionar Carpeta", 
             command=self._on_select_folder
         )
-        self.btn_select_folder.grid(row=3, column=0, padx=20, pady=10)
+        self.btn_select_folder.grid(row=4, column=0, padx=20, pady=8)
 
         self.btn_output_folder = ctk.CTkButton(
             self.sidebar_frame,
@@ -134,7 +144,7 @@ class MainWindow(BaseWindow):
             hover_color="#2c3e50",
             command=self._on_choose_output_dir
         )
-        self.btn_output_folder.grid(row=4, column=0, padx=20, pady=10)
+        self.btn_output_folder.grid(row=5, column=0, padx=20, pady=8)
 
         # Convert Action Button
         self.btn_convert = ctk.CTkButton(
@@ -145,17 +155,41 @@ class MainWindow(BaseWindow):
             hover_color="#27ae60",
             command=self._start_conversion
         )
-        self.btn_convert.grid(row=5, column=0, padx=20, pady=25)
+        self.btn_convert.grid(row=6, column=0, padx=20, pady=15)
 
-        # Clear list button
+        # Bottom info frame with GitHub repo and About modal
+        self.bottom_sidebar = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
+        self.bottom_sidebar.grid(row=7, column=0, padx=15, pady=(10, 15), sticky="s")
+
         self.btn_clear = ctk.CTkButton(
-            self.sidebar_frame,
+            self.bottom_sidebar,
             text="Limpiar Selección",
             fg_color="#e74c3c",
             hover_color="#c0392b",
+            height=28,
             command=self._clear_selection
         )
-        self.btn_clear.grid(row=7, column=0, padx=20, pady=15)
+        self.btn_clear.pack(fill="x", pady=4)
+
+        self.btn_repo = ctk.CTkButton(
+            self.bottom_sidebar,
+            text="⭐ Repositorio GitHub",
+            fg_color="#24292e",
+            hover_color="#1b1f23",
+            height=28,
+            command=self._open_repo
+        )
+        self.btn_repo.pack(fill="x", pady=4)
+
+        self.btn_about = ctk.CTkButton(
+            self.bottom_sidebar,
+            text="ℹ️ Info y Créditos",
+            fg_color="#2c3e50",
+            hover_color="#1a252f",
+            height=28,
+            command=self._show_about
+        )
+        self.btn_about.pack(fill="x", pady=4)
 
         # Right Main Workspace
         self.main_frame = ctk.CTkFrame(self)
@@ -239,6 +273,57 @@ class MainWindow(BaseWindow):
         self.txt_history = ctk.CTkTextbox(self.tab_history, font=ctk.CTkFont(family="Consolas", size=12))
         self.txt_history.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self._refresh_history()
+
+    def _open_repo(self):
+        """Open author repository in default web browser."""
+        webbrowser.open_new_tab(APP_REPO_URL)
+
+    def _show_about(self):
+        """Displays application details, version, author, and license."""
+        about_dialog = ctk.CTkToplevel(self)
+        about_dialog.title("Acerca de Doc2Markdown")
+        about_dialog.geometry("450x330")
+        about_dialog.resizable(False, False)
+        about_dialog.attributes("-topmost", True)
+
+        title = ctk.CTkLabel(
+            about_dialog, 
+            text="⚡ Doc2Markdown Studio", 
+            font=ctk.CTkFont(size=18, weight="bold")
+        )
+        title.pack(pady=(20, 5))
+
+        info_text = (
+            f"Versión: {APP_VERSION}\n"
+            f"Autor Principal: {APP_AUTHOR}\n"
+            f"Licencia: {APP_LICENSE}\n\n"
+            "Software open source diseñado para que programadores, analistas\n"
+            "y cualquier usuario conviertan documentos complejos a Markdown,\n"
+            "reduciendo hasta un 90% el gasto de tokens en Inteligencias Artificiales.\n\n"
+            "Todos los derechos reservados. Cualquier distribución debe dar crédito\n"
+            "y mantener la autoría original."
+        )
+
+        lbl_info = ctk.CTkLabel(about_dialog, text=info_text, justify="center", font=ctk.CTkFont(size=12))
+        lbl_info.pack(padx=20, pady=10)
+
+        btn_visit = ctk.CTkButton(
+            about_dialog,
+            text="🌐 Ir al Repositorio",
+            fg_color="#24292e",
+            hover_color="#1b1f23",
+            command=lambda: webbrowser.open_new_tab(APP_REPO_URL)
+        )
+        btn_visit.pack(pady=5)
+
+        btn_close = ctk.CTkButton(
+            about_dialog,
+            text="Cerrar",
+            fg_color="#34495e",
+            hover_color="#2c3e50",
+            command=about_dialog.destroy
+        )
+        btn_close.pack(pady=10)
 
     def _on_select_files(self):
         extensions = [f"*{ext}" for ext in SUPPORTED_EXTENSIONS.keys()]
