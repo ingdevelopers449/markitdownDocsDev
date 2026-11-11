@@ -14,7 +14,7 @@ except Exception:
     HAS_DND = False
 
 from src.core.config import APP_NAME, APP_VERSION, APP_AUTHOR, APP_REPO_URL, APP_LICENSE, SUPPORTED_EXTENSIONS
-from src.core.utils import format_size
+from src.core.utils import format_size, get_asset_path
 from src.features.converter.service import ConversionService
 from src.features.converter.models import ConversionRequest
 from src.features.batch.service import BatchService
@@ -43,11 +43,30 @@ class MainWindow(BaseWindow):
         self.geometry("1000x700")
         self.minsize(880, 600)
 
-        # Set window icon if available
-        icon_path = Path("icon.ico")
+        # Set window icon if available (both iconbitmap for taskbar/window and wm_iconbitmap)
+        icon_path = get_asset_path("icon.ico")
+        if not icon_path.exists():
+            icon_path = Path("icon.ico")
+
         if icon_path.exists():
             try:
                 self.iconbitmap(str(icon_path.resolve()))
+            except Exception:
+                pass
+            try:
+                self.wm_iconbitmap(str(icon_path.resolve()))
+            except Exception:
+                pass
+
+        # Also support PNG taskbar icon for modern Windows/Tkinter
+        png_path = get_asset_path("icon.png")
+        if not png_path.exists():
+            png_path = Path("icon.png")
+        if png_path.exists():
+            try:
+                from tkinter import PhotoImage
+                img_icon = PhotoImage(file=str(png_path.resolve()))
+                self.iconphoto(True, img_icon)
             except Exception:
                 pass
 
@@ -334,18 +353,27 @@ class MainWindow(BaseWindow):
         btn_close.pack(pady=10)
 
     def _on_select_files(self):
-        extensions = [f"*{ext}" for ext in SUPPORTED_EXTENSIONS.keys()]
-        file_types = [
-            ("Documentos soportados", " ".join(extensions)),
-            ("Todos los archivos", "*.*")
-        ]
-        paths = filedialog.askopenfilenames(title="Seleccionar Documentos", filetypes=file_types)
-        if paths:
-            for p in paths:
-                p_path = Path(p)
-                if p_path not in self.selected_files:
-                    self.selected_files.append(p_path)
-            self._update_file_display()
+        try:
+            # Semicolon-separated wildcard patterns for Windows file dialog
+            doc_patterns = ";".join([f"*{ext}" for ext in SUPPORTED_EXTENSIONS.keys()])
+            file_types = [
+                ("Todos los documentos soportados", doc_patterns),
+                ("Hojas de cálculo Excel (*.xlsx, *.xls, *.csv)", "*.xlsx;*.xls;*.csv"),
+                ("Documentos Word (*.docx)", "*.docx"),
+                ("Archivos PDF (*.pdf)", "*.pdf"),
+                ("Presentaciones PowerPoint (*.pptx)", "*.pptx"),
+                ("Archivos de texto y web (*.txt, *.html, *.json)", "*.txt;*.html;*.htm;*.json;*.xml"),
+                ("Todos los archivos (*.*)", "*.*")
+            ]
+            paths = filedialog.askopenfilenames(title="Seleccionar Documentos", filetypes=file_types)
+            if paths:
+                for p in paths:
+                    p_path = Path(p)
+                    if p_path not in self.selected_files:
+                        self.selected_files.append(p_path)
+                self._update_file_display()
+        except Exception as e:
+            messagebox.showerror("Error al seleccionar archivos", f"Ocurrió un problema al abrir el explorador:\n{e}")
 
     def _on_select_folder(self):
         folder = filedialog.askdirectory(title="Seleccionar Carpeta con Documentos")
@@ -487,8 +515,22 @@ class MainWindow(BaseWindow):
                 self.txt_history.insert("end", f"    Salida: {rec['output']}\n")
             self.txt_history.insert("end", "\n")
 
-def launch_gui():
-    """Launch the CustomTkinter GUI application."""
+def launch_gui(progress_callback=None, on_ready_callback=None):
+    """
+    Launch the CustomTkinter GUI application with optional splash screen callbacks.
+    """
+    if progress_callback:
+        progress_callback(75, "Inicializando ventana gráfica...")
+
     app = MainWindow()
+
+    if progress_callback:
+        progress_callback(100, "¡Listo! Abriendo aplicación...")
+
+    if on_ready_callback:
+        on_ready_callback()
+
+    app.lift()
+    app.focus_force()
     app.mainloop()
 

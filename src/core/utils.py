@@ -39,3 +39,15 @@ def format_size(size_bytes: int) -> str:
         size_bytes /= 1024.0
     return f"{size_bytes:.1f} TB"
 
+def get_asset_path(filename: str) -> Path:
+    """
+    Get absolute path to resource, works for dev and for PyInstaller bundle.
+    PyInstaller unpacks data files into sys._MEIPASS at runtime.
+    """
+    import sys
+    if hasattr(sys, '_MEIPASS'):
+        bundle_dir = Path(sys._MEIPASS)
+    else:
+        bundle_dir = Path(__file__).resolve().parent.parent.parent
+    return bundle_dir / filename
+
