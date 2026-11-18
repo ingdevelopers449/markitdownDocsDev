@@ -9,6 +9,7 @@ from src.features.converter.service import ConversionService
 from src.features.converter.models import ConversionRequest
 from src.features.batch.service import BatchService
 from src.features.history.service import HistoryService
+from src.core.exceptions import HistoryError
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -53,7 +54,10 @@ def run_cli(args_list=None):
         )
         print(f"[*] Convirtiendo: {target.name}...")
         res = converter.convert_file(req)
-        history.record_conversion(res)
+        try:
+            history.record_conversion(res)
+        except HistoryError as exc:
+            print(f"[AVISO] {exc}", file=sys.stderr)
 
         if res.success:
             print("[EXITO] Conversión completada con éxito.")
@@ -80,7 +84,10 @@ def run_cli(args_list=None):
         def on_progress(done, total, result):
             status = "OK" if result.success else "FALLO"
             print(f" [{done}/{total}] {result.source_path.name} -> {status} (~{result.estimated_tokens} tokens)")
-            history.record_conversion(result)
+            try:
+                history.record_conversion(result)
+            except HistoryError as exc:
+                print(f"[AVISO] {exc}", file=sys.stderr)
 
         results = batch_service.convert_batch(files, output_dir=out_dir, progress_callback=on_progress)
         success_count = sum(1 for r in results if r.success)
@@ -89,7 +96,7 @@ def run_cli(args_list=None):
         print("\n" + "="*40)
         print(f"Procesamiento por lotes finalizado: {success_count}/{len(results)} exitosos.")
         print(f"Total estimado de tokens generados: ~{total_tokens:,}")
-        return 0
+        return 0 if success_count == len(results) else 1
 
 if __name__ == "__main__":
     sys.exit(run_cli())

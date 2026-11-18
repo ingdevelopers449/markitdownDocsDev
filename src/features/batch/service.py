@@ -1,6 +1,7 @@
 """Batch processing service for converting multiple files or folders."""
 from pathlib import Path
 from typing import List, Callable, Optional
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.features.converter.service import ConversionService
@@ -32,7 +33,8 @@ class BatchService:
         files: List[Path],
         output_dir: Optional[Path] = None,
         progress_callback: Optional[Callable[[int, int, ConversionResult], None]] = None,
-        max_workers: int = 4
+        max_workers: int = 4,
+        cancel_event: Optional[threading.Event] = None,
     ) -> List[ConversionResult]:
         """
         Convert multiple files concurrently.
@@ -44,10 +46,33 @@ class BatchService:
         if total == 0:
             return results
 
-        def process_one(source_file: Path) -> ConversionResult:
+        allocated_targets = set()
+        target_lock = threading.Lock()
+
+        def unique_target(source_file: Path) -> Optional[Path]:
+            if output_dir is None:
+                return None
+            with target_lock:
+                stem = source_file.stem
+                if stem.lower().endswith(".xlsx") or stem.lower().endswith(".xls"):
+                    stem = stem.rsplit(".", 1)[0]
+                target = Path(output_dir) / f"{stem}.md"
+                candidate = target
+                suffix = 2
+                key = str(candidate.resolve()).lower()
+                while candidate.exists() or key in allocated_targets:
+                    candidate = target.with_name(f"{target.stem}_{suffix}{target.suffix}")
+                    suffix += 1
+                    key = str(candidate.resolve()).lower()
+                allocated_targets.add(key)
+                return candidate
+
+        def process_one(source_file: Path) -> Optional[ConversionResult]:
+            if cancel_event and cancel_event.is_set():
+                return None
             target = None
             if output_dir:
-                target = Path(output_dir) / f"{source_file.stem}.md"
+                target = unique_target(source_file)
             req = ConversionRequest(source_path=source_file, output_path=target)
             return self._converter.convert_file(req)
 
@@ -57,10 +82,11 @@ class BatchService:
 
             for future in as_completed(future_to_file):
                 res = future.result()
+                if res is None:
+                    continue
                 results.append(res)
                 completed_count += 1
                 if progress_callback:
                     progress_callback(completed_count, total, res)
 
         return results
-

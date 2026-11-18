@@ -16,3 +16,10 @@ class OutputWriteError(Doc2MarkdownError):
     """Raised when markdown file cannot be saved."""
     pass
 
+class HistoryError(Doc2MarkdownError):
+    """Raised when conversion history cannot be read or written."""
+    pass
+
+class BatchCancelled(Doc2MarkdownError):
+    """Raised when a batch conversion is cancelled."""
+    pass

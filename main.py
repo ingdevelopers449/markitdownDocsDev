@@ -3,6 +3,7 @@ Punto de entrada principal de la aplicación Doc2Markdown Studio.
 Ejecuta una pantalla de carga moderna (Splash Screen) con barra de progreso instantánea.
 """
 import sys
+import logging
 
 def main():
     # Si se pasan argumentos por línea de comandos (modo CLI)
@@ -24,8 +25,9 @@ def main():
                 close_splash()
 
             launch_gui(progress_callback=update_progress, on_ready_callback=on_ready)
-        except Exception:
+        except Exception as exc:
             # Fallback en caso de cualquier detalle en splash
+            logging.debug("No se pudo iniciar la pantalla de carga", exc_info=exc)
             from src.features.gui.views import launch_gui
             launch_gui()
 

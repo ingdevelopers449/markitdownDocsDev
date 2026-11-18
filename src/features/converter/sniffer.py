@@ -4,7 +4,6 @@ import io
 from pathlib import Path
 from typing import Optional
 import pandas as pd
-from markitdown import MarkItDown
 
 def sniff_and_read_tabular(file_path: Path) -> Optional[pd.DataFrame]:
     """Attempts to auto-detect tabular formats (Excel, HTML tables, CSV/TSV) regardless of file extension."""
@@ -45,4 +44,3 @@ def dataframe_to_markdown(df: pd.DataFrame) -> str:
     # Drop entirely empty rows and columns
     cleaned_df = df.dropna(how="all").dropna(axis=1, how="all")
     return cleaned_df.to_markdown(index=False)
-

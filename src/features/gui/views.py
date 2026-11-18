@@ -19,6 +19,7 @@ from src.features.converter.service import ConversionService
 from src.features.converter.models import ConversionRequest
 from src.features.batch.service import BatchService
 from src.features.history.service import HistoryService
+from src.core.exceptions import HistoryError
 
 # Set modern appearance
 ctk.set_appearance_mode("Dark")
@@ -78,6 +79,8 @@ class MainWindow(BaseWindow):
         # State
         self.selected_files = []
         self.output_directory = None
+        self._cancel_event = None
+        self._last_failed_files = []
 
         self._build_ui()
         self._setup_drag_and_drop()
@@ -197,6 +200,17 @@ class MainWindow(BaseWindow):
             command=self._clear_selection
         )
         self.btn_clear.pack(fill="x", pady=4)
+
+        self.btn_retry_failed = ctk.CTkButton(
+            self.bottom_sidebar,
+            text="Reintentar Fallidos",
+            fg_color="#d35400",
+            hover_color="#ba4a00",
+            height=28,
+            command=self._retry_failed_files,
+            state="disabled",
+        )
+        self.btn_retry_failed.pack(fill="x", pady=4)
 
         self.btn_repo = ctk.CTkButton(
             self.bottom_sidebar,
@@ -367,11 +381,19 @@ class MainWindow(BaseWindow):
             ]
             paths = filedialog.askopenfilenames(title="Seleccionar Documentos", filetypes=file_types)
             if paths:
+                rejected = []
                 for p in paths:
                     p_path = Path(p)
-                    if p_path not in self.selected_files:
+                    if self.converter_service.is_supported(p_path) and p_path not in self.selected_files:
                         self.selected_files.append(p_path)
+                    else:
+                        rejected.append(p_path.name)
                 self._update_file_display()
+                if rejected:
+                    messagebox.showwarning(
+                        "Formatos no compatibles",
+                        "No se agregaron estos archivos:\n" + "\n".join(rejected[:20]),
+                    )
         except Exception as e:
             messagebox.showerror("Error al seleccionar archivos", f"Ocurrió un problema al abrir el explorador:\n{e}")
 
@@ -392,6 +414,8 @@ class MainWindow(BaseWindow):
 
     def _clear_selection(self):
         self.selected_files.clear()
+        self._last_failed_files = []
+        self.btn_retry_failed.configure(state="disabled")
         self._update_file_display()
 
     def _update_file_display(self):
@@ -412,10 +436,13 @@ class MainWindow(BaseWindow):
         """Open Windows Explorer at the location of the converted file."""
         if self.last_converted_path and Path(self.last_converted_path).exists():
             import subprocess
-            subprocess.run(f'explorer /select,"{Path(self.last_converted_path).resolve()}"', shell=True)
+            subprocess.run(
+                ["explorer.exe", "/select,", str(Path(self.last_converted_path).resolve())],
+                check=False,
+            )
         elif self.output_directory and Path(self.output_directory).exists():
             import subprocess
-            subprocess.run(f'explorer "{Path(self.output_directory).resolve()}"', shell=True)
+            subprocess.run(["explorer.exe", str(Path(self.output_directory).resolve())], check=False)
         else:
             messagebox.showinfo("Carpeta", "Aún no se ha convertido ningún archivo o la carpeta no está disponible.")
 
@@ -430,8 +457,13 @@ class MainWindow(BaseWindow):
         if not self.selected_files:
             messagebox.showwarning("Sin archivos", "Por favor selecciona al menos un archivo antes de convertir.")
             return
+        if self._cancel_event is not None:
+            self._cancel_event.set()
+            self.lbl_status.configure(text="Cancelando...")
+            return
 
-        self.btn_convert.configure(state="disabled")
+        self._cancel_event = threading.Event()
+        self.btn_convert.configure(state="normal", text="⏹ Cancelar")
         self.progress_bar.set(0)
         self.lbl_status.configure(text="Convirtiendo...")
 
@@ -448,7 +480,10 @@ class MainWindow(BaseWindow):
         def on_progress(done, count, res):
             nonlocal total_tokens, total_saved_bytes, total_orig_bytes, last_result
             last_result = res
-            self.history_service.record_conversion(res)
+            try:
+                self.history_service.record_conversion(res)
+            except HistoryError as exc:
+                self.after(0, lambda: messagebox.showwarning("Historial", str(exc)))
             if res.success:
                 total_tokens += res.estimated_tokens
                 total_saved_bytes += res.saved_bytes
@@ -460,21 +495,28 @@ class MainWindow(BaseWindow):
         results = self.batch_service.convert_batch(
             self.selected_files,
             output_dir=self.output_directory,
-            progress_callback=on_progress
+            progress_callback=on_progress,
+            cancel_event=self._cancel_event,
         )
 
+        cancelled = self._cancel_event.is_set()
         savings_pct = (total_saved_bytes / total_orig_bytes * 100) if total_orig_bytes > 0 else 0.0
-        self.after(0, lambda: self._conversion_finished(results, total_tokens, savings_pct, last_result))
+        self.after(0, lambda: self._conversion_finished(results, total_tokens, savings_pct, last_result, cancelled))
 
     def _update_ui_progress(self, progress, done, total):
         self.progress_bar.set(progress)
         self.lbl_status.configure(text=f"Procesando: {done}/{total}")
 
-    def _conversion_finished(self, results, total_tokens, savings_pct, last_result):
-        self.btn_convert.configure(state="normal")
-        self.lbl_status.configure(text="¡Completado!")
+    def _conversion_finished(self, results, total_tokens, savings_pct, last_result, cancelled=False):
+        self.btn_convert.configure(state="normal", text="🚀 CONVERTIR A .MD")
+        self._cancel_event = None
+        self.lbl_status.configure(text="Cancelado" if cancelled else "¡Completado!")
         self.lbl_card_tokens.configure(text=f"Tokens est.: ~{total_tokens:,}")
         self.lbl_card_savings.configure(text=f"Ahorro peso: ~{savings_pct:.1f}%")
+        self._last_failed_files = [r.source_path for r in results if not r.success]
+        self.btn_retry_failed.configure(
+            state="normal" if self._last_failed_files else "disabled"
+        )
 
         if last_result and last_result.success:
             self.last_converted_path = last_result.output_path
@@ -486,16 +528,35 @@ class MainWindow(BaseWindow):
         self._refresh_history()
 
         success_count = sum(1 for r in results if r.success)
-        messagebox.showinfo(
-            "Conversión Exitosa", 
-            f"Se convirtieron {success_count}/{len(results)} documentos a Markdown (.md).\n"
-            f"Tokens estimados para la IA: ~{total_tokens:,}\n"
-            f"Los archivos .md ya están listos para subirse a tu IA sin derrochar tokens."
-        )
+        if cancelled:
+            messagebox.showinfo(
+                "Conversión cancelada",
+                f"Se convirtieron {success_count}/{len(results)} documentos antes de cancelar.",
+            )
+        else:
+            messagebox.showinfo(
+                "Conversión finalizada",
+                f"Se convirtieron {success_count}/{len(results)} documentos a Markdown (.md).\n"
+                f"Tokens estimados para la IA: ~{total_tokens:,}\n"
+                f"Los archivos .md ya están listos para subirse a tu IA.",
+            )
+
+    def _retry_failed_files(self):
+        if not self._last_failed_files:
+            return
+        self.selected_files = list(self._last_failed_files)
+        self._last_failed_files = []
+        self.btn_retry_failed.configure(state="disabled")
+        self._update_file_display()
+        self._start_conversion()
 
     def _refresh_history(self):
         self.txt_history.delete("1.0", "end")
-        records = self.history_service.get_all()
+        try:
+            records = self.history_service.get_all()
+        except HistoryError as exc:
+            self.txt_history.insert("1.0", f"No se pudo cargar el historial:\n{exc}")
+            return
         if not records:
             self.txt_history.insert("1.0", "No hay conversiones registradas.")
             return
@@ -533,4 +594,3 @@ def launch_gui(progress_callback=None, on_ready_callback=None):
     app.lift()
     app.focus_force()
     app.mainloop()
-

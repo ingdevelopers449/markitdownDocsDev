@@ -1,11 +1,17 @@
 """Conversion service implementing Microsoft MarkItDown with clean Markdown pipeline."""
+import logging
+import os
+import re
+import tempfile
 import time
 from pathlib import Path
-from typing import Optional
-from markitdown import MarkItDown
+try:
+    from markitdown import MarkItDown
+except ImportError:
+    MarkItDown = None
 
 from src.core.config import SUPPORTED_EXTENSIONS
-from src.core.exceptions import ConversionError, UnsupportedFormatError
+from src.core.exceptions import ConversionError, UnsupportedFormatError, OutputWriteError
 from src.core.utils import estimate_tokens
 from src.features.converter.models import ConversionRequest, ConversionResult
 from src.features.converter.sniffer import sniff_and_read_tabular, dataframe_to_markdown
@@ -21,6 +27,10 @@ class ConversionService:
     def engine(self):
         """Loads MarkItDown engine on first conversion request."""
         if self._engine is None:
+            if MarkItDown is None:
+                raise ConversionError(
+                    "MarkItDown no esta disponible para esta version de Python"
+                )
             self._engine = MarkItDown()
         return self._engine
 
@@ -35,15 +45,19 @@ class ConversionService:
         Convert a single document file to Markdown.
         Automatically detects file structure and applies fallback parsers.
         """
-        source = Path(request.source_path)
-        if not source.exists():
-            raise ConversionError(f"Archivo no encontrado: {source}")
-
-        start_time = time.time()
-        orig_size = source.stat().st_size
-        raw_text = ""
-
         try:
+            source = Path(request.source_path)
+            start_time = time.time()
+            if not source.exists():
+                raise ConversionError(f"Archivo no encontrado: {source}")
+            if not source.is_file():
+                raise ConversionError(f"La ruta no es un archivo: {source}")
+            if not self.is_supported(source):
+                raise UnsupportedFormatError(f"Formato no soportado: {source.suffix.lower() or '(sin extension)'}")
+
+            orig_size = source.stat().st_size
+            raw_text = ""
+
             # 1. Primary Strategy: Microsoft MarkItDown engine
             try:
                 result = self.engine.convert(str(source))
@@ -54,6 +68,7 @@ class ConversionService:
                 if df is not None and not df.empty:
                     raw_text = dataframe_to_markdown(df)
                 else:
+                    logging.debug("MarkItDown fallo para %s", source, exc_info=markitdown_exc)
                     raise markitdown_exc
 
             # If MarkItDown returned raw HTML table tags (e.g. from an HTML-based .xls), clean them into markdown
@@ -81,7 +96,28 @@ class ConversionService:
 
             # Write converted file
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            output_file.write_text(markdown_content, encoding="utf-8")
+            temp_name = None
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode="w",
+                    encoding="utf-8",
+                    dir=str(output_file.parent),
+                    prefix=f".{output_file.name}.",
+                    suffix=".tmp",
+                    delete=False,
+                ) as temp_file:
+                    temp_file.write(markdown_content)
+                    temp_name = temp_file.name
+                os.replace(temp_name, output_file)
+            except Exception as exc:
+                if temp_name:
+                    try:
+                        Path(temp_name).unlink(missing_ok=True)
+                    except OSError:
+                        pass
+                raise OutputWriteError(
+                    f"No se pudo guardar el archivo Markdown '{output_file}': {exc}"
+                ) from exc
 
             duration = time.time() - start_time
             md_size = len(markdown_content.encode("utf-8"))
@@ -103,6 +139,12 @@ class ConversionService:
             )
 
         except Exception as e:
+            if "source" not in locals():
+                source = Path(request.source_path)
+            if "start_time" not in locals():
+                start_time = time.time()
+            if "orig_size" not in locals():
+                orig_size = source.stat().st_size if source.exists() and source.is_file() else 0
             duration = time.time() - start_time
             return ConversionResult(
                 source_path=source,
@@ -126,7 +168,6 @@ class ConversionService:
         content = text
         if clean:
             # Replace 3 or more blank lines with just 2
-            import re
             content = re.sub(r'\n{3,}', '\n\n', content)
             # Strip trailing whitespaces on lines
             content = "\n".join(line.rstrip() for line in content.splitlines())
@@ -140,4 +181,3 @@ class ConversionService:
             content = header + content
 
         return content
-
